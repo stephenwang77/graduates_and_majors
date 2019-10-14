@@ -1,0 +1,114 @@
+---
+title: "College Majors"
+author: "Stephen Wang"
+date: "13/10/2019"
+output: html_document
+---
+
+Data collected from: https://github.com/fivethirtyeight/data/tree/master/college-majors
+
+When I was in highschool, I never gave my college major decision a thought. I thought going with the flow would be the best option which proved to be one of the biggest mistakes later down the road. So, although this is 5 years too late, the aim of this project is to explore data relating to the different college majors and find out which major will most likely ensure I have a job by the end of the day. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr) #data manipulation
+library(tidyr) #tidying data 
+library(readr) #reading files 
+library(ggplot2) #data visualisation
+library(purrr) #toolkit for functions and vectors
+library(stringr) #string manipulation
+library(reshape2) #reshaping data
+library(ggcorrplot) #correlation matrixes
+```
+
+```{r}
+filename = "recent-grads.csv"
+grads <- read_csv(filename)
+dim(grads)
+head(grads, 10)
+tail(grads, 10)
+```
+
+Dimension: 173 columns x 21 rows 
+
+Variables:
+
+Rank: rank by median earnings 
+Major_code: unique major identifier 
+Major: description of major
+Total: total number of graduates with respective major
+Men: total number of men gradutes with respective major
+Women: total number of women graduates with respective major
+Major_category: category of the major 
+ShareWomen: proportion of women to total graduates with respective major
+Sample_size:
+Employed: number of employed graduates
+Full_time: number of employed graduates with 35 hours or more
+Part_time: number of employed graduates with less than 35 hours
+Full_time_year_round:
+Unemployed: number of unemployed graduates
+Unemployment_rate: proportion of unemployed graduates (unemployed / unemployed+employed)
+Median: median earnings of full time workers
+P25th:
+P75th:
+College_jobs: number of jobs requiring degree
+Non_college_jobs: number of jobs not requiring a degree
+Low_wage_jobs: number of jobs that are low-wage service 
+
+```{r}
+colSums(is.na(grads))
+subset(grads, is.na(Men) | is.na(Women))
+```
+
+```{r}
+ggplot(data=grads,
+       aes(x=reorder(Major_category, Major_category, 
+                     function(x)-length(x))))+
+  geom_bar(stat="count")+
+  ylab("Number of Majors")+
+  xlab("Category")+
+  coord_flip()+
+  theme_classic()
+```
+
+Engineering has more than double the second highest number of majors in a category. Let's take a closer look at the distribution of income in Science, Technology, Engineering, and Mathematics. 
+
+Since the Rank variable is associated with Median, we can expect a clear negative relationship (as rank increases, median decreases). 
+
+```{r}
+science <- grads %>% filter(Major_category=='Health' | Major_category=='Biology & Life Science' | Major_category=='Psychology & Social Work') %>% mutate(stem='Science')
+
+# technology <- grads %>% filter(Major_category=='Computers & Mathematics') %>% filter(grepl('COMPUTER|INFORMATION|COMMUNICATION', Major)) %>% mutate(stem='Technology')
+
+technology <- grads %>% filter(Major_category=='Computers & Mathematics') %>% mutate(stem='Technology/Mathematics')
+
+engineering <- grads %>% filter(Major_category=='Engineering') %>% mutate(stem='Engineering')
+
+# mathematics <- grads %>% filter(Major_category=='Computers & Mathematics') %>% filter(!grepl('COMPUTER|INFORMATION|COMMUNICATION', Major)) %>% mutate(stem='Mathematics')
+
+stem <- rbind(science, technology, engineering)
+
+ggplot(data=stem,
+       aes(x=stem, y=Median))+
+  geom_boxplot()+
+  theme_classic()+
+  xlab(NULL)
+```
+
+The problem with dividing the data into these segments is that mathematics only have 3 sources of data while engineering have 29. I am making the assumption that the dataset combined Technology and Mathematics majors together on purpose so we'll be doing the same. 
+
+```{r}
+# Unemployment 
+unemployment_desc <- grads[order(-grads$Unemployed),]
+head(unemployment_desc, 5)
+
+# Unemployment rate
+unemployment_rate_desc <- grads[order(-grads$Unemployment_rate),]
+head(unemployment_rate_desc, 5)
+
+
+```
+
+Note that the number of unemployed graduates are greater for popular major subjects but the unemployment rate is higher for niche major subjects i.e. nuclear engineering. 
+
+Unemployment: when there are not enough opportunities to satisfy the number of graduates. 
