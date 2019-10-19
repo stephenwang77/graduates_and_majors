@@ -111,4 +111,17 @@ head(unemployment_rate_desc, 5)
 
 Note that the number of unemployed graduates are greater for popular major subjects but the unemployment rate is higher for niche major subjects i.e. nuclear engineering. 
 
-Unemployment: when there are not enough opportunities to satisfy the number of graduates. 
+Psychology & Social Work and (General) Business have the most unemployed number of graduates but their total number of graduates are 393,735 and 329,927 respectively which explains why their unemployment rate is only between 7-8%. 
+
+Nuclear engineering has the higest unemployment rate of 17.7%. However, since it's very specialised major, it has a respectable median income of $65,000. 
+
+```{r}
+# Engineering least earnings
+tail(engineering,1)
+
+
+```
+
+Engineering has the most majors and highest median earnings amongst the other major categories. But how does the lowest earning engineering major compare?
+
+Mechanical Engineering Related Technologies has a median income of $40,000 and sits 67th on the rankings. There are a total of 173 majors so even the lowest engineering full-time income is around top 40%. 
